@@ -5,27 +5,32 @@ import {
   FormOutlined,
   DeleteOutlined,
 } from "@ant-design/icons";
-import { reqAllSubject } from "@/api/edu/subject";
+import { reqNo1SubjectPagination } from "@/api/edu/subject";
 import "./index.less";
 export default class Subject extends Component {
+  state = {
+    no1SubjectInfo: {
+      items: [],
+      total: 0,
+    },
+    pageSize: 5,
+  };
+  getNo1SubjectPagination = async (page, pageSize = this.state.pageSize) => {
+    const { items, total } = await reqNo1SubjectPagination(page, pageSize);
+    this.setState({ no1SubjectInfo: { items, total } });
+  };
   async componentDidMount() {
-    const result = await reqAllSubject();
+    this.getNo1SubjectPagination(1);
   }
   render() {
-    const dataSource = [
-      {
-        key: "1",
-        name: "测试分类一",
-      },
-      {
-        key: "2",
-        name: "测试分类二",
-      },
-    ];
+    const {
+      no1SubjectInfo: { items, total },
+      pageSize,
+    } = this.state;
     const columns = [
       {
         title: "分类名",
-        dataIndex: "name",
+        dataIndex: "title",
         key: "0",
         width: "80%",
       },
@@ -54,7 +59,18 @@ export default class Subject extends Component {
           </Button>
         }
       >
-        <Table dataSource={dataSource} columns={columns} />
+        <Table
+          dataSource={items}
+          columns={columns}
+          rowKey="_id"
+          pagination={{
+            pageSize,
+            total,
+            onChange: (page) => {
+              this.getNo1SubjectPagination(page);
+            },
+          }}
+        />
       </Card>
     );
   }
