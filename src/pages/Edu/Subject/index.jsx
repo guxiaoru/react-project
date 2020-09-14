@@ -1,17 +1,20 @@
 import React, { Component } from "react";
-import { Card, Button, Table, Tooltip, Input } from "antd";
+import { Card, Button, Table, Tooltip, Input, message, Modal } from "antd";
 import {
   PlusCircleOutlined,
   FormOutlined,
   DeleteOutlined,
+  ExclamationCircleOutlined,
 } from "@ant-design/icons";
 
 import {
   reqNo1SubjectPagination,
   reqAllNo2SubjectByNo1Id,
   reqUpdateSubject,
+  reqDeleteSubject,
 } from "@/api/edu/subject";
 import "./index.less";
+const { confirm } = Modal;
 export default class Subject extends Component {
   state = {
     no1SubjectInfo: {
@@ -19,6 +22,7 @@ export default class Subject extends Component {
       total: 0,
     },
     pageSize: 5,
+    current: 1,
     expandedRowKeys: [],
     loading: false,
     editSubjectId: "",
@@ -70,11 +74,53 @@ export default class Subject extends Component {
   handleTitleChange = (event) => {
     this.setState({ editSubjectTitle: event.target.value });
   };
-  updateSubject = async () => {
+  processSubject = (arr) => {
     const { editSubjectId, editSubjectTitle } = this.state;
-    const result = await reqUpdateSubject(editSubjectId, editSubjectTitle);
-    this.getNo1SubjectPagination(1);
-    this.setState({ editSubjectId: "", editSubjectTitle: "" });
+    return arr.map((sub) => {
+      if (sub._id === editSubjectId) {
+        sub.title = editSubjectTitle;
+      } else {
+        if (sub.children) this.processSubject(sub.children);
+      }
+      return sub;
+    });
+  };
+  updateSubject = async () => {
+    const { editSubjectId, editSubjectTitle, no1SubjectInfo } = this.state;
+    if (!editSubjectTitle.trim()) {
+      message.warning("分类名不能为空");
+    }
+    await reqUpdateSubject(editSubjectId, editSubjectTitle);
+    message.success("分类更新成功");
+    const items = this.processSubject(no1SubjectInfo.items);
+    this.setState({
+      editSubjectId: "",
+      editSubjectTitle: "",
+      no1SubjectInfo: { ...no1SubjectInfo, items },
+    });
+  };
+  handleDelete = ({ _id, title }) => {
+    let { current, no1SubjectInfo } = this.state;
+    confirm({
+      title: (
+        <>
+          确定删除<span className="delte_title">{title}</span>吗
+        </>
+      ),
+      icon: <ExclamationCircleOutlined />,
+      content: "删除后无法恢复，谨慎操作",
+      okText: "确定",
+      cancelText: "取消",
+      onOk: async () => {
+        await reqDeleteSubject(_id);
+        message.success("删除分类成功");
+        if (current !== 1 && no1SubjectInfo.items.length === 1) {
+          current -= 1;
+          this.setState({ current });
+        }
+        this.getNo1SubjectPagination(current);
+      },
+    });
   };
   componentDidMount() {
     this.getNo1SubjectPagination(1);
@@ -86,6 +132,7 @@ export default class Subject extends Component {
       expandedRowKeys,
       loading,
       editSubjectId,
+      current,
     } = this.state;
     const columns = [
       {
@@ -121,7 +168,14 @@ export default class Subject extends Component {
               >
                 确定
               </Button>
-              <Button size="small">取消</Button>
+              <Button
+                size="small"
+                onClick={() =>
+                  this.setState({ editSubjectId: "", editSubjectTitle: "" })
+                }
+              >
+                取消
+              </Button>
             </div>
           ) : (
             <>
@@ -134,7 +188,11 @@ export default class Subject extends Component {
                 ></Button>
               </Tooltip>
               <Tooltip title="删除">
-                <Button type="danger" icon={<DeleteOutlined />}></Button>
+                <Button
+                  type="danger"
+                  icon={<DeleteOutlined />}
+                  onClick={() => this.handleDelete(subject)}
+                ></Button>
               </Tooltip>
             </>
           ),
@@ -143,7 +201,11 @@ export default class Subject extends Component {
     return (
       <Card
         title={
-          <Button type="primary" icon={<PlusCircleOutlined />}>
+          <Button
+            type="primary"
+            icon={<PlusCircleOutlined />}
+            onClick={() => this.props.history.push("/edu/subject/add")}
+          >
             新增分类
           </Button>
         }
@@ -161,6 +223,7 @@ export default class Subject extends Component {
           pagination={{
             pageSize,
             total,
+            current,
             showSizeChanger: true,
             showQuickJumper: true,
             pageSizeOptions: ["1", "2", "3", "4", "5", "8", "10", "50"], //页大小备选项
@@ -168,7 +231,7 @@ export default class Subject extends Component {
               this.getNo1SubjectPagination(page);
             },
             onShowSizeChange: (_, pageSize) => {
-              this.setState({ pageSize });
+              //this.setState({ pageSize });
               this.getNo1SubjectPagination(1, pageSize);
             },
           }}
