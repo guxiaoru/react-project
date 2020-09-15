@@ -2,10 +2,13 @@ import React, { Component } from "react";
 import { Card, Form, Button, Input, Switch } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import Upload from "@/components/Upload";
+import { reqAddLesson } from "@/api/edu/lesson";
 const { Item } = Form;
 export default class AddLesson extends Component {
-  handleFinish = (values) => {
-    values.chapter_id = this.props.location.state.id;
+  handleFinish = async (values) => {
+    values.chapterId = this.props.location.state.id;
+    await reqAddLesson(values);
+    this.props.history.goBack();
   };
   render() {
     return (
@@ -29,16 +32,16 @@ export default class AddLesson extends Component {
           }}
         >
           <Item
-            name="lesson_name"
+            name="title"
             label="课时名"
             rules={[{ required: true, message: "必须输入课时名" }]}
           >
             <Input placeholder=" 请输入课时名" />
           </Item>
-          <Item name="isfree" label="是否免费" valuePropName="checked">
+          <Item name="free" label="是否免费" valuePropName="checked">
             <Switch checkedChildren="是" unCheckedChildren="否" />
           </Item>
-          <Item label="课时视频">
+          <Item label="课时视频" name="video">
             <Upload />
           </Item>
           <Item>
@@ -47,6 +50,7 @@ export default class AddLesson extends Component {
             </Button>
           </Item>
         </Form>
+        <br />
       </Card>
     );
   }
