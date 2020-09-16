@@ -31,7 +31,7 @@ export default class MyUpload extends Component {
         message.success("上传成功");
       },
     };
-    const key = "0422test3" + file.uid;
+    const key = "gxr_0422test3" + file.uid;
     const { uploadToken: token } = await reqQiniuToken();
     const observable = qiniu.upload(file, key, token);
     observable.subscribe(observer);

@@ -3,10 +3,11 @@ import { Card, Form, Select, Button } from "antd";
 import { reqAllCourse } from "@/api/edu/course";
 import { reqChapPagListByCourse } from "@/api/edu/chapter";
 import Pubsub from "pubsub-js";
+import { FormattedMessage, injectIntl } from "react-intl";
 import "./index.less";
 const { Item } = Form;
 const { Option } = Select;
-export default class Search extends Component {
+class Search extends Component {
   state = {
     courseList: [],
   };
@@ -36,12 +37,14 @@ export default class Search extends Component {
           onFinish={this.handleFinish}
         >
           <Item
-            label="选择课程"
+            label={<FormattedMessage id="select_course" />}
             name="courseId"
             rules={[{ required: true, message: "必须选择一个课程" }]}
           >
             <Select className="select_course">
-              <Option value="">请选择课程</Option>
+              <Option value="">
+                {<FormattedMessage id="please_select_course" />}
+              </Option>
               {courseList.map((c) => {
                 return (
                   <Option key={c._id} value={c._id}>
@@ -52,15 +55,19 @@ export default class Search extends Component {
             </Select>
           </Item>
           <Item>
-            <Button type="primary" htmlType="submit">
-              搜索
+          <Button type="primary" htmlType="submit">
+              {this.props.intl.formatMessage({ id: "search" })}
             </Button>
           </Item>
           <Item>
-            <Button onClick={this.resetForm}>重置</Button>
+            <Button onClick={this.resetForm}>
+              {this.props.intl.formatMessage({ id: "reset" })}
+            </Button>
           </Item>
         </Form>
       </Card>
     );
   }
 }
+
+export default injectIntl(Search);
