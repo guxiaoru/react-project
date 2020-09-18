@@ -55,7 +55,7 @@ class Search extends Component {
             </Select>
           </Item>
           <Item>
-          <Button type="primary" htmlType="submit">
+            <Button type="primary" htmlType="submit">
               {this.props.intl.formatMessage({ id: "search" })}
             </Button>
           </Item>

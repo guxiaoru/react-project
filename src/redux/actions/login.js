@@ -4,9 +4,9 @@ import { LOGIN_SUCCESS, REMOVE_TOKEN } from "../constants/login";
 /**
  * 登陆
  */
-export const loginSuccessSync = user => ({
+export const loginSuccessSync = (tokenObj) => ({
   type: LOGIN_SUCCESS,
-  data: user //{token:xxxxxx}
+  data: tokenObj, //{token:xxxxxx}
 });
 
 /* 
@@ -17,12 +17,12 @@ export const loginSuccessSync = user => ({
 				让dispatch函数有返回值
 */
 export const login = (username, password) => {
-  return dispatch => {
-		return reqLogin(username, password).then(response => {
-      dispatch(loginSuccessSync(response));
+  return (dispatch) => {
+    return reqLogin(username, password).then((tokenObj) => {
+      dispatch(loginSuccessSync(tokenObj));
       // 返回token，外面才能接受
-			return response.token;
-		});
+      return tokenObj.token;
+    });
   };
 };
 
@@ -30,14 +30,14 @@ export const login = (username, password) => {
  * 删除token
  */
 export const removeToken = () => ({
-  type: REMOVE_TOKEN
+  type: REMOVE_TOKEN,
 });
 
 /**
  * 登出
  */
 export const logout = () => {
-  return dispatch => {
+  return (dispatch) => {
     return reqLogout().then(() => {
       dispatch(removeToken());
     });

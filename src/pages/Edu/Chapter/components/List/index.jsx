@@ -26,6 +26,7 @@ class List extends Component {
   handleExpand = async (isExpanded, record) => {
     if (isExpanded) {
       const lessonList = await reqAllLessonListByCourseId(record._id);
+      console.log("请求回来的课时数据", lessonList);
       const chapterList = this.state.chapterList.map((chapter) => {
         if (chapter._id === record._id) {
           chapter.children = lessonList;
@@ -53,10 +54,7 @@ class List extends Component {
   componentDidMount() {
     this.msg_id = Pubsub.subscribe("chapter_list", (_, data) => {
       console.log("搜索回来的章节数据", data.items);
-      const items = data.items.map((chapter) => ({
-        ...chapter,
-        children: [],
-      }));
+      const items = data.items.map((chapter) => ({ ...chapter, children: [] }));
       this.setState({ chapterList: items });
     });
     screenfull.on("change", () => {
@@ -155,11 +153,11 @@ class List extends Component {
           </Card>
         </div>
         <Modal
-          title={lessonTitle}
-          visible={visible}
-          onCancel={this.handleCancel}
-          footer={null}
-          destroyOnClose
+        title={lessonTitle}
+        visible={visible}
+        onCancel={this.handleCancel}
+        footer={null}
+        destroyOnClose
         >
           <Player>
             <source src={url} />

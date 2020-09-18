@@ -28,6 +28,16 @@ export function reqLogin(username, password) {
     },
   });
 }
+export function reqPhoneLogin(mobile, code) {
+  return request({
+    url: `/oauth/mobile`,
+    method: "POST",
+    data: {
+      mobile,
+      code,
+    },
+  });
+}
 
 // 登出
 export function reqLogout() {

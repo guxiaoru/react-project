@@ -6,6 +6,7 @@ import {
   UserOutlined,
   SettingOutlined,
   LogoutOutlined,
+  GlobalOutlined,
 } from "@ant-design/icons";
 import { connect } from "react-redux";
 import { Link, withRouter } from "react-router-dom";
@@ -16,7 +17,7 @@ import { changeLanguage } from "@/redux/actions/language";
 import { resetUser } from "../../components/Authorized/redux";
 import logo from "@/assets/images/logo.png";
 import { findPathIndex } from "@/utils/tools";
-import "@/assets/css/common.less";// 引入组件公共样式
+import "@/assets/css/common.less"; // 引入组件公共样式
 import "./index.less";
 
 const { Header, Sider, Content } = Layout;
@@ -27,8 +28,8 @@ const { Header, Sider, Content } = Layout;
   }),
   {
     logout,
-		resetUser,
-		changeLanguage
+    resetUser,
+    changeLanguage,
   }
 )
 @withRouter
@@ -44,19 +45,19 @@ class PrimaryLayout extends Component {
   };
 
   logout = ({ key }) => {
-		console.log('logout');
+    console.log("logout");
     if (key !== "2") return;
     this.props.logout().then(() => {
       localStorage.removeItem("user_token");
       this.props.resetUser();
       this.props.history.replace("/login");
     });
-	};
-	
-	changeLanguage = ({key})=>{
-		console.log('切换到:',key,'语言包');
-		this.props.changeLanguage(key)
-	}
+  };
+
+  changeLanguage = ({ key }) => {
+    console.log("切换到:", key, "语言包");
+    this.props.changeLanguage(key);
+  };
 
   menu = (
     <Menu style={{ width: 150 }} onClick={this.logout}>
@@ -78,8 +79,15 @@ class PrimaryLayout extends Component {
         退出登录
       </Menu.Item>
     </Menu>
-	);
-	
+  );
+  languageMenu = (
+    <Menu style={{ width: 110 }} onClick={this.changeLanguage}>
+      <Menu.Item key="zh_CN">中文简体</Menu.Item>
+      <Menu.Item key="zh_TW">中文繁體</Menu.Item>
+      <Menu.Item key="en">English</Menu.Item>
+    </Menu>
+  );
+
   selectRoute = (routes = [], pathname) => {
     for (let i = 0; i < routes.length; i++) {
       const route = routes[i];
@@ -147,7 +155,7 @@ class PrimaryLayout extends Component {
 
     return (
       <Layout className="layout">
-				{/* 左侧导航区-----start */}
+        {/* 左侧导航区-----start */}
         <Sider trigger={null} collapsible collapsed={collapsed}>
           <div className="logo">
             <img src={logo} alt="logo" />
@@ -157,7 +165,7 @@ class PrimaryLayout extends Component {
           </div>
           <SiderMenu routes={routes} defaultOpenKey={route && route.path} />
         </Sider>
-				{/* 左侧导航区-----end */}
+        {/* 左侧导航区-----end */}
         <Layout className="site-layout">
           <Header className="site-layout-header">
             <span className="site-layout-container">
@@ -173,6 +181,11 @@ class PrimaryLayout extends Component {
                   <span className="site-layout-user">
                     <img src={user.avatar} alt="avatar" />
                     <span>{user.name}</span>
+                  </span>
+                </Dropdown>
+                <Dropdown overlay={this.languageMenu}>
+                  <span className="site-layout-user" className="lang">
+                    <GlobalOutlined />
                   </span>
                 </Dropdown>
               </span>

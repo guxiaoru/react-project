@@ -13,9 +13,11 @@ import {
   reqUpdateSubject,
   reqDeleteSubject,
 } from "@/api/edu/subject";
+import { saveSubject } from "./redux";
+import { connect } from "react-redux";
 import "./index.less";
 const { confirm } = Modal;
-export default class Subject extends Component {
+class Subject extends Component {
   state = {
     no1SubjectInfo: {
       items: [],
@@ -240,3 +242,6 @@ export default class Subject extends Component {
     );
   }
 }
+export default connect(() => ({}), {
+  saveSubject,
+})(Subject);
